@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>drawing app</title>
+</head>
+<style>
+
+body{
+  margin:0;
+  padding:0;
+}
+#colorButtonBox{
+  position:absolute;
+  background:rgb(210,210,210);
+  padding:5px;
+  margin:5px;
+  border-radius:10px;
+  bottom:0;
+}
+#colorButton {
+  transition: .1s linear;
+  position: relative;
+  float:left;
+  margin:5px;
+  border-radius:5px;
+  width: 40px;
+  height: 40px;
+  z-index: 3;
+}
+#eraserButton {
+  transition: .1s linear;
+  position: relative;
+  float:left;
+  margin:5px;
+  border-radius:50%;
+  width: 40px;
+  height: 40px;
+  z-index: 3;
+  background:white;
+}
+#eraserButton:hover {
+  width:30px;
+  height:30px;
+  margin:10px;
+}
+#colorButton:hover {
+  transition: .1s linear;
+  width:45px;
+  height:45px;
+  margin:2.5px;
+}
+
+.black {
+  background:black;
+}
+.blue {
+  background:blue;
+}
+.red {
+  background:red;
+}
+.green {
+  background:green;
+}
+.yellow {
+  background:yellow;
+}
+.gray{
+  background-color: gray;
+}
+</style>
+
+
+<META name="viewport" content="initial-scale=0.66, user-scalable=no">
+<body>
+  <div id="colorButtonBox">
+    <div class="slidecontainer">
+    <input type="range" min="1" max="50" value="10" class="slider" id="myRange" onchange = "strokesize(this.value)">
+    </div>
+    <div id="colorButton" class="black" onclick='changeColor("black")'></div>
+    <div id="colorButton" class="red" onclick="changeColor('red')"></div>
+    <div id="colorButton" class="green" onclick="changeColor('green')"></div>
+    <div id="colorButton" class="blue" onclick="changeColor('blue')"></div>
+    <div id="colorButton" class="yellow" onclick="changeColor('yellow')"></div>
+    <div id="eraserButton" onclick="changeColor('amogus')"></div>
+    <div id="colorButton" class="gray" onclick="save()"></div>
+
+  </div>
+  <canvas id="canvas" ></canvas>
+
+</body>
+<script>
+
+
+let color = "black";
+let strokeSize = 10;
+
+function changeColor(data) {
+  color = data;
+}
+function strokesize(data){
+  strokeSize = data;
+}
+function save() {
+        var dataURL = canvas.toDataURL();
+        const xhr = new XMLHttpRequest()
+        const data = new FormData()
+        console.log(dataURL)
+        data.append('image', dataURL)
+        xhr.open('POST', '/')
+        xhr.send(data)
+
+
+}
+
+
+window.addEventListener("load", () => {
+  const canvas = document.querySelector("#canvas");
+  const ctx = canvas.getContext("2d");
+
+  //resizing
+  canvas.height = window.innerHeight-10;
+  canvas.width = window.innerWidth-10; 
+
+
+
+  //variables
+  let painting = false;
+
+  //functions
+  function startPosition(e) {
+    painting = true;
+    draw(e);
+  }
+
+  function endPosition() {
+    painting = false;
+    ctx.beginPath();
+  }
+
+  function draw(e) {
+    if (!painting) {
+      return;
+    }
+    if(color != "amogus"){
+
+    e.preventDefault();
+    ctx.lineWidth = strokeSize;
+    ctx.lineCap = "round";
+ 
+    if (e.type == 'touchmove'){
+      ctx.lineTo(e.touches[0].clientX, e.touches[0].clientY);
+    } else if (e.type == 'mousemove'){
+      ctx.lineTo(e.clientX, e.clientY);
+    }
+      
+    ctx.stroke();
+    ctx.strokeStyle = color;
+    ctx.beginPath();
+    
+    // ctx.moveTo(e.clientX, e.clientY);
+    if (e.type == 'touchmove'){
+      ctx.moveTo(e.touches[0].clientX, e.touches[0].clientY);
+    } else if (e.type == 'mousemove'){
+      ctx.moveTo(e.clientX, e.clientY);
+    }
+  }
+  else{
+    e.preventDefault();
+
+    if (e.type == 'touchmove'){
+      ctx.clearRect(e.touches[0].clientX, e.touches[0].clientY, strokeSize*3, strokeSize*3);
+    } else if (e.type == 'mousemove'){
+      ctx.clearRect(e.clientX, e.clientY, strokeSize*3, strokeSize*3);
+    }
+
+  }
+  }
+
+  //event listeners
+  canvas.addEventListener("mousedown", startPosition);
+  canvas.addEventListener("touchstart", startPosition);
+  canvas.addEventListener("mouseup", endPosition);
+  canvas.addEventListener("touchend", endPosition);
+  canvas.addEventListener("mousemove", draw);
+  canvas.addEventListener("touchmove", draw);
+
+
+});
+
+
+</script>
+
+</html>
